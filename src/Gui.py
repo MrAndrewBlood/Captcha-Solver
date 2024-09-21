@@ -34,16 +34,13 @@ class GUI:
 
         # Erstelle Checkboxen mit Labels
         self.turnstile_var = tk.BooleanVar()
-        self.recaptcha_var = tk.BooleanVar()
-        self.hcaptcha_var = tk.BooleanVar()
+        self.captcha2_var = tk.BooleanVar()
 
         # Checkboxen erstellen
         self.checkbox_turnstile = tk.Checkbutton(self.frame, text="Turnstile", variable=self.turnstile_var)
         self.checkbox_turnstile.grid(row=0, column=0, sticky="w")
-        self.checkbox_recaptcha = tk.Checkbutton(self.frame, text="reCAPTCHA", variable=self.recaptcha_var)
-        self.checkbox_recaptcha.grid(row=1, column=0, sticky="w")
-        self.checkbox_hcaptcha = tk.Checkbutton(self.frame, text="hCaptcha", variable=self.hcaptcha_var)
-        self.checkbox_hcaptcha.grid(row=2, column=0, sticky="w")
+        self.checkbox_captcha2 = tk.Checkbutton(self.frame, text="Captcha2", variable=self.captcha2_var)
+        self.checkbox_captcha2.grid(row=1, column=0, sticky="w")
 
         # Erstelle einen Start-Button
         self.start_button = tk.Button(self.window, text="Start", command=self.toggle_button)
@@ -71,7 +68,7 @@ class GUI:
             self.stop_action()
 
     def start_action(self):
-        if not (self.turnstile_var.get() or self.recaptcha_var.get() or self.hcaptcha_var.get()):
+        if not (self.turnstile_var.get() or self.captcha2_var.get()):
             print("No Captcha selected. Please select a solver.")
             self.start_button.config(text="Start")
             self.is_running = False
@@ -79,12 +76,10 @@ class GUI:
             args = []
             if self.turnstile_var.get():
                 args.append("Turnstile")
-            if self.recaptcha_var.get():
-                args.append("reCAPTCHA")
-            if self.hcaptcha_var.get():
-                args.append("hCaptcha")
+            if self.captcha2_var.get():
+                args.append("Captcha2")
 
-            print(f"Starting searching and solving with these Captchas enabled: {args}")
+            print(f"Starting searching and solving: {args}")
             threading.Thread(target=self.run_process, args=(args,), daemon=True).start()
             self.start_button.config(text="Stop")
             self.is_running = True
