@@ -34,9 +34,9 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 Included Captchas:
 
 | Captcha              | Success Rate  |
-|----------------------|---------------|
-| Cloudflare Turnstile | 99%           |
-| Captcha2             | 90%           |
+|----------------------|:-------------:|
+| Cloudflare Turnstile |      99%      |
+| Captcha2             |      90%      |
 
 ## Planned
 
