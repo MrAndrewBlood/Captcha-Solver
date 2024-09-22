@@ -39,6 +39,5 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 ## Planned
 
 + Better Structure
-+ Add Statistic Infos
 + Release for Win/Linux/Mac with Version control on startup
 + Add more Captchas (IconCaptcha, HCaptcha, Antibot Numbers)

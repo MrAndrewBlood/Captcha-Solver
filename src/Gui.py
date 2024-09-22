@@ -10,13 +10,22 @@ import tempfile
 
 class GUI:
     def __init__(self):
+        # Zähle gelöste Captchas in der aktuellen Sitzung
+        self.session_turnstile_count = 0
+        self.session_captcha2_count = 0
+
+        # Gesamtanzahl aus Datei laden oder initialisieren
+        self.total_turnstile_count = 0
+        self.total_captcha2_count = 0
+        self.load_total_stats()
+
         # Erstelle das Hauptfenster
         self.window = tk.Tk()
         self.window.title("Captcha Solver")
 
         # Berechne die Position für die Mitte des Bildschirms
         width = 700
-        height = 400
+        height = 330
         screen_width = self.window.winfo_screenwidth()
         screen_height = self.window.winfo_screenheight()
         x = (screen_width // 2) - (width // 2)
@@ -28,21 +37,21 @@ class GUI:
         # Erstelle eine Beschreibung oberhalb der Checkboxen
         self.description_label = tk.Label(self.window,
                                           text="Please choose the Captchas that you want to solve automatically and then click Start.")
-        self.description_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        self.description_label.grid(row=0, column=0, padx=10, pady=10)
 
         # Erstelle einen Frame für die Checkboxen und Labels
         self.frame = tk.Frame(self.window)
-        self.frame.grid(row=1, column=0, padx=10, pady=10, sticky="w")
-
-        # Erstelle Checkboxen mit Labels
+        self.frame.grid(row=1, column=0, padx=170, sticky="w")
         self.turnstile_var = tk.BooleanVar()
-        self.captcha2_var = tk.BooleanVar()
-
-        # Checkboxen erstellen
         self.checkbox_turnstile = tk.Checkbutton(self.frame, text="Cloudflare Turnstile", variable=self.turnstile_var)
         self.checkbox_turnstile.grid(row=0, column=0, sticky="w")
+
+        # Erstelle einen Frame für die Checkboxen und Labels
+        self.frame = tk.Frame(self.window)
+        self.frame.grid(row=1, column=0, padx=80, sticky="e")
+        self.captcha2_var = tk.BooleanVar()
         self.checkbox_captcha2 = tk.Checkbutton(self.frame, text="Captcha2 (EarnNow and other sites)", variable=self.captcha2_var)
-        self.checkbox_captcha2.grid(row=1, column=0, sticky="w")
+        self.checkbox_captcha2.grid(row=0, column=0, sticky="w")
 
         # Erstelle einen Start-Button
         self.start_button = tk.Button(self.window, text="Start", command=self.toggle_button)
@@ -53,6 +62,16 @@ class GUI:
         self.console.grid(row=4, column=0, pady=10)
         self.window.grid_columnconfigure(0, weight=1)
 
+        # Beschriftungen für gelöste Captchas pro Sitzung
+        self.session_stats_label = tk.Label(self.window,
+                                            text=f"Captchas solved this session:   Turnstile: {self.session_turnstile_count}   Captcha2: {self.session_captcha2_count}")
+        self.session_stats_label.grid(row=5, column=0, padx=25, sticky="w")
+
+        # Beschriftungen für gelöste Captchas insgesamt
+        self.total_stats_label = tk.Label(self.window,
+                                          text=f"Captchas solved all time:   Turnstile: {self.total_turnstile_count}   Captcha2: {self.total_captcha2_count}")
+        self.total_stats_label.grid(row=5, column=0, padx=25, sticky="e")
+
         # Umleiten von print-Ausgaben zur Konsole
         sys.stdout = StreamToTextWidget(self.console)
 
@@ -62,6 +81,41 @@ class GUI:
 
         # Startet den Thread für das Auslesen der Konsole
         self.window.after(100, self.process_queue)
+
+    def load_total_stats(self):
+        # Lade die Gesamtstatistik aus einer Datei
+        try:
+            with open("stats.txt", "r") as f:
+                data = f.readlines()
+                self.total_turnstile_count = int(data[0].strip())
+                self.total_captcha2_count = int(data[1].strip())
+        except FileNotFoundError:
+            # Wenn die Datei nicht existiert, starte mit 0
+            self.total_turnstile_count = 0
+            self.total_captcha2_count = 0
+
+    def save_total_stats(self):
+        # Speichere die Gesamtstatistik in eine Datei
+        with open("stats.txt", "w") as f:
+            f.write(f"{self.total_turnstile_count}\n")
+            f.write(f"{self.total_captcha2_count}\n")
+
+    def update_stats(self, captcha_type):
+        if captcha_type == "Turnstile":
+            self.session_turnstile_count += 1
+            self.total_turnstile_count += 1
+        elif captcha_type == "Captcha2":
+            self.session_captcha2_count += 1
+            self.total_captcha2_count += 1
+
+        # Aktualisiere die GUI-Anzeige
+        self.session_stats_label.config(
+            text=f"Captchas solved this session:   Turnstile: {self.session_turnstile_count}   Captcha2: {self.session_captcha2_count}")
+        self.total_stats_label.config(
+            text=f"Captchas solved all time:   Turnstile {self.total_turnstile_count}   Captcha2 {self.total_captcha2_count}")
+
+        # Speichere die Gesamtstatistik
+        self.save_total_stats()
 
     def toggle_button(self):
         if not self.is_running:
@@ -105,10 +159,17 @@ class GUI:
             while True:
                 line = self.output_queue.get_nowait()
                 print(line.strip())
+
+                # Aktualisiere die Statistiken basierend auf der Ausgabe
+                if "Found Turnstile" in line:
+                    self.update_stats("Turnstile")
+                elif "Found Captcha2" in line:
+                    self.update_stats("Captcha2")
+
         except queue.Empty:
             pass
         finally:
-            self.window.after(100, self.process_queue)  # Überprüfe die Queue wieder in 100 ms
+            self.window.after(100, self.process_queue)
 
     def stop_action(self):
         print("Please wait until Captcha Solver stopping...")

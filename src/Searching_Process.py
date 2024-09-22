@@ -1,7 +1,7 @@
 import sys
 import time
 import os
-import tempfile  # Für temporäre Dateien
+import tempfile
 import numpy as np
 import cv2
 from PIL import ImageGrab  # Für Screenshots
@@ -15,9 +15,8 @@ captcha2_template_path = os.path.join(os.path.dirname(__file__), '../img/Captcha
 captcha2_template = cv2.imread(captcha2_template_path, cv2.IMREAD_GRAYSCALE)
 
 
-def solve_turnstile(screenshot_path):
-    # Screenshot laden und in Graustufen umwandeln
-    screenshot = cv2.imread(screenshot_path)
+def solve_turnstile(screenshot):
+    # Screenshot ist bereits ein NumPy-Array
     screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
 
     # Template Matching
@@ -38,9 +37,8 @@ def solve_turnstile(screenshot_path):
             pyautogui.click(click_x, click_y)
 
 
-def solve_captcha2(screenshot_path):
-    # Screenshot laden und in Graustufen umwandeln
-    screenshot = cv2.imread(screenshot_path)
+def solve_captcha2(screenshot):
+    # Screenshot ist bereits ein NumPy-Array
     screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
 
     # Template Matching für das Captcha in Graustufen
@@ -84,8 +82,6 @@ def solve_captcha2(screenshot_path):
                 match_result = cv2.matchTemplate(cut_region, resized_first_region, cv2.TM_CCOEFF_NORMED)
                 min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(match_result)
 
-                # print(f"Matching score for region {i}: {max_val}")
-
                 # Suche nach der besten Übereinstimmung
                 if max_val > best_match_value:
                     best_match_value = max_val
@@ -94,14 +90,15 @@ def solve_captcha2(screenshot_path):
 
             click_x = pt[0] + match_location[0] + coordinates[1][2] // 2
             click_y = pt[1] + match_location[1] + coordinates[1][3] // 2
-            print(f"Found Captcha2 and click on Symbol: {best_region_index}")  # +1 für die Ausgabe
+
+            print(f"Found Captcha2 and click on Symbol: {best_region_index}")
+
             pyautogui.click(click_x, click_y)
 
 
 def main():
     global temp_dir
     temp_dir = tempfile.gettempdir()
-    screenshot_count = 0
 
     # Verarbeite die übergebenen Argumente
     stop_flag_path = sys.argv[1]  # Abbruchflag-Dateipfad als erstes Argument
@@ -114,19 +111,15 @@ def main():
             os.remove(stop_flag_path)
             break
 
-        # Screenshot erstellen
-        screenshot_count += 1
-        screenshot_path = os.path.join(temp_dir, f"screenshot_{screenshot_count}.png")
-        screenshot = ImageGrab.grab()  # Screenshot des gesamten Bildschirms
-        screenshot.save(screenshot_path)  # Speichern des Screenshots
-        # print("Screenshot made.")
+        # Screenshot erstellen und als NumPy-Array verarbeiten
+        screenshot = np.array(ImageGrab.grab())  # Screenshot des gesamten Bildschirms
 
         # Übergeben des Screenshots an die entsprechenden Captcha-Funktionen
         for captcha in active_captchas:
             if captcha == "Turnstile":
-                solve_turnstile(screenshot_path)
+                solve_turnstile(screenshot)
             elif captcha == "Captcha2":
-                solve_captcha2(screenshot_path)
+                solve_captcha2(screenshot)
             else:
                 print(f"Undefined Captcha: {captcha}")
 
