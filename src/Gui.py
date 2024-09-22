@@ -27,7 +27,7 @@ class GUI:
 
         # Erstelle eine Beschreibung oberhalb der Checkboxen
         self.description_label = tk.Label(self.window,
-                                          text="Please choose the Captchas that you want to solve automatically:")
+                                          text="Please choose the Captchas that you want to solve automatically and then click Start.")
         self.description_label.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
         # Erstelle einen Frame für die Checkboxen und Labels
@@ -39,9 +39,9 @@ class GUI:
         self.captcha2_var = tk.BooleanVar()
 
         # Checkboxen erstellen
-        self.checkbox_turnstile = tk.Checkbutton(self.frame, text="Turnstile", variable=self.turnstile_var)
+        self.checkbox_turnstile = tk.Checkbutton(self.frame, text="Cloudflare Turnstile", variable=self.turnstile_var)
         self.checkbox_turnstile.grid(row=0, column=0, sticky="w")
-        self.checkbox_captcha2 = tk.Checkbutton(self.frame, text="Captcha2", variable=self.captcha2_var)
+        self.checkbox_captcha2 = tk.Checkbutton(self.frame, text="Captcha2 (EarnNow and other sites)", variable=self.captcha2_var)
         self.checkbox_captcha2.grid(row=1, column=0, sticky="w")
 
         # Erstelle einen Start-Button
@@ -81,7 +81,7 @@ class GUI:
             if self.captcha2_var.get():
                 args.append("Captcha2")
 
-            print(f"Starting searching and solving: {args}")
+            print(f"Start searching and solving: {args}")
             threading.Thread(target=self.run_process, args=(args,), daemon=True).start()
             self.start_button.config(text="Stop")
             self.is_running = True
@@ -111,7 +111,7 @@ class GUI:
             self.window.after(100, self.process_queue)  # Überprüfe die Queue wieder in 100 ms
 
     def stop_action(self):
-        print("Stopping Captcha Solver...")
+        print("Please wait until Captcha Solver stopping...")
         # Abbruchflag erstellen
         with open(self.stop_flag_path, 'w') as f:
             f.write('stop')  # Signal zum Stoppen

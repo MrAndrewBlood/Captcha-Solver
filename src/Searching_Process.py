@@ -33,7 +33,7 @@ def solve_turnstile(screenshot_path):
             click_x = pt[0] + 30  # 30px nach rechts
             click_y = pt[1] + turnstile_template.shape[0] // 2  # Mitte des Templates
 
-            print(f"Found Turnstile captcha and making a click on position: ({click_x}, {click_y})")
+            print(f"Found Turnstile and click on position: {click_x}, {click_y}")
 
             pyautogui.click(click_x, click_y)
 
@@ -94,7 +94,7 @@ def solve_captcha2(screenshot_path):
 
             click_x = pt[0] + match_location[0] + coordinates[1][2] // 2
             click_y = pt[1] + match_location[1] + coordinates[1][3] // 2
-            print(f"Found Captcha2 and clicking on Symbol: {best_region_index}")  # +1 für die Ausgabe
+            print(f"Found Captcha2 and click on Symbol: {best_region_index}")  # +1 für die Ausgabe
             pyautogui.click(click_x, click_y)
 
 
