@@ -29,9 +29,7 @@ After starting, it takes every 5 seconds a screenshot and search with opencv tem
 
 It cannot work headless, you must see the captcha everytime in the screen that it works.
 
-## How it works
-
-Included Captchas:
+## Included Captchas
 
 | Captcha              | Success Rate  |
 |----------------------|:-------------:|
