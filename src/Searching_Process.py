@@ -130,7 +130,7 @@ def main():
             else:
                 print(f"Undefined Captcha: {captcha}")
 
-        time.sleep(1)  # Warte 5 Sekunden, bevor der nächste Screenshot erstellt wird
+        time.sleep(5)  # Warte 5 Sekunden, bevor der nächste Screenshot erstellt wird
 
 
 if __name__ == "__main__":
