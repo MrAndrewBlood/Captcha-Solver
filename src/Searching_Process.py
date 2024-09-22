@@ -89,15 +89,21 @@ def solve_captcha2(screenshot_path):
 
 
 def main():
-    # Erstelle ein temporäres Verzeichnis für Screenshots
     global temp_dir
     temp_dir = tempfile.gettempdir()
     screenshot_count = 0
 
     # Verarbeite die übergebenen Argumente
-    active_captchas = sys.argv[1:]  # Alle übergebenen Captcha-Namen
+    stop_flag_path = sys.argv[1]  # Abbruchflag-Dateipfad als erstes Argument
+    active_captchas = sys.argv[2:]  # Alle übergebenen Captcha-Namen
 
     while True:
+        # Überprüfe, ob das Abbruchflag existiert
+        if os.path.exists(stop_flag_path):
+            print("Captcha Solver stopped.")
+            os.remove(stop_flag_path)
+            break
+
         # Screenshot erstellen
         screenshot_count += 1
         screenshot_path = os.path.join(temp_dir, f"screenshot_{screenshot_count}.png")

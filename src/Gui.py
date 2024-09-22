@@ -4,6 +4,8 @@ import io
 import subprocess
 import threading
 import queue
+import os
+import tempfile
 
 
 class GUI:
@@ -86,7 +88,8 @@ class GUI:
 
     def run_process(self, args):
         # Startet den Prozess
-        process = subprocess.Popen(['python', 'Searching_Process.py'] + args,
+        self.stop_flag_path = os.path.join(tempfile.gettempdir(), "stop_flag.txt")  # Pfad für das Abbruchsignal
+        process = subprocess.Popen(['python', 'Searching_Process.py', self.stop_flag_path] + args,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         for line in process.stdout:
             self.output_queue.put(line)  # Fügt die Ausgabe zur Queue hinzu
@@ -109,6 +112,9 @@ class GUI:
 
     def stop_action(self):
         print("Stopping Captcha Solver...")
+        # Abbruchflag erstellen
+        with open(self.stop_flag_path, 'w') as f:
+            f.write('stop')  # Signal zum Stoppen
         self.is_running = False
         self.start_button.config(text="Start")
 
