@@ -5,20 +5,18 @@
 ```
 git clone https://github.com/MrAndrewBlood/Captcha-Solver.git
 ```
-+ Start the Main.py in the src folder
++ Start the main.py
 ```
-cd Captcha-Solver/src
-python Main.py
+cd Captcha-Solver
+python main.py
 ```
 ## Requirements
 
 + Git for cloning
 + Python with pip
+
 ```
-pip install numpy
-pip install opencv-python
-pip install pillow
-pip install pyautogui
+pip install numpy opencv-python Pillow pyautogui
 ```
 
 ## How it works
@@ -38,6 +36,5 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 
 ## Planned
 
-+ Better Structure
 + Release for Win/Linux/Mac with Version control on startup
 + Add more Captchas (IconCaptcha, HCaptcha, Antibot Numbers)
