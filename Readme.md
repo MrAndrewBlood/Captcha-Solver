@@ -21,7 +21,7 @@ pip install numpy opencv-python Pillow pyautogui
 
 ## How it works
 
-After starting, it takes every 5 seconds a screenshot and search with opencv template matching for the activated captchas if it finds one, it clicks on that. 
+After starting, it takes every second a screenshot and search with opencv template matching for the activated captchas if it finds one, it clicks on that. 
 
 **IMPORTANT**
 
@@ -29,12 +29,12 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 
 ## Included Captchas
 
-| Captcha              | Success Rate  |
-|----------------------|:-------------:|
-| Cloudflare Turnstile |      99%      |
-| Captcha2             |      90%      |
+| Captcha              | Success Rate |
+|----------------------|:------------:|
+| Cloudflare Turnstile |     99%      |
+| Captcha2             |     90%      |
+| IconCaptcha          |     20%      |
 
 ## Planned
 
 + Release for Win/Linux/Mac with Version control on startup
-+ Add more Captchas (IconCaptcha, HCaptcha, Antibot Numbers)
