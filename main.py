@@ -28,59 +28,65 @@ def solve_turnstile(screenshot):
     # Screenshot ist bereits ein NumPy-Array
     screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
     result = cv2.matchTemplate(screenshot_gray, turnstile_template, cv2.TM_CCOEFF_NORMED)
-    threshold = 0.8  # Setze den Schwellenwert für die Übereinstimmung
+    threshold = 0.7  # Schwellenwert für die Übereinstimmung (zwischen 0.7 und 0.8)
     locations = np.where(result >= threshold)
 
     if locations[0].size > 0:
-        for pt in zip(*locations[::-1]):  # Umkehren der Koordinaten
-            click_x = pt[0] + 30  # 30px nach rechts
-            click_y = pt[1] + turnstile_template.shape[0] // 2  # Mitte des Templates
-            console_print(f"Found Turnstile and click on position: {click_x}, {click_y}")
-            update_stats("Turnstile")
-            pyautogui.click(click_x, click_y)
+        # Nur die erste Übereinstimmung verwenden
+        pt = (locations[1][0], locations[0][0])  # Erste Übereinstimmung
+        click_x = pt[0] + 30  # 30px nach rechts
+        click_y = pt[1] + turnstile_template.shape[0] // 2  # Mitte des Templates
+
+        console_print(f"Found Turnstile and click on position: {click_x}, {click_y}")
+        update_stats("Turnstile")
+        pyautogui.click(click_x, click_y)
 
 
 def solve_captcha2(screenshot):
     # Screenshot ist bereits ein NumPy-Array
     screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
     result = cv2.matchTemplate(screenshot_gray, captcha2_template, cv2.TM_CCOEFF_NORMED)
-    locations = np.where(result >= 0.8)  # Schwellenwert für das Haupt-Captcha
+    locations = np.where(result >= 0.7)  # Schwellenwert für das Haupt-Captcha
     scale_factor = 0.8  # Skalierungsfaktor
 
     if locations[0].size > 0:
-        for pt in zip(*locations[::-1]):  # Umkehren der Koordinaten
-            h, w = captcha2_template.shape
-            captcha_region = screenshot[pt[1]:pt[1] + h, pt[0]:pt[0] + w]
-            coordinates = [
-                (145, 10, 60, 60),
-                (65, 110, 50, 50),
-                (120, 110, 50, 50),
-                (175, 110, 60, 50),
-                (235, 110, 60, 50)
-            ]
-            first_region = captcha_region[coordinates[0][1]:coordinates[0][1] + coordinates[0][3],
-                           coordinates[0][0]:coordinates[0][0] + coordinates[0][2]]
-            new_size = (int(first_region.shape[1] * scale_factor), int(first_region.shape[0] * scale_factor))
-            resized_first_region = cv2.resize(first_region, new_size)
+        # Nur die erste Übereinstimmung verwenden
+        pt = (locations[1][0], locations[0][0])  # Erste Übereinstimmung
+        h, w = captcha2_template.shape
+        captcha_region = screenshot[pt[1]:pt[1] + h, pt[0]:pt[0] + w]
 
-            best_match_value = -1
-            match_location = None
+        coordinates = [
+            (145, 10, 60, 60),
+            (65, 110, 50, 50),
+            (120, 110, 50, 50),
+            (175, 110, 60, 50),
+            (235, 110, 60, 50)
+        ]
+        first_region = captcha_region[coordinates[0][1]:coordinates[0][1] + coordinates[0][3],
+                       coordinates[0][0]:coordinates[0][0] + coordinates[0][2]]
+        new_size = (int(first_region.shape[1] * scale_factor), int(first_region.shape[0] * scale_factor))
+        resized_first_region = cv2.resize(first_region, new_size)
 
-            for i, (x, y, width, height) in enumerate(coordinates[1:], 1):
-                cut_region = captcha_region[y:y + height, x:x + width]
-                match_result = cv2.matchTemplate(cut_region, resized_first_region, cv2.TM_CCOEFF_NORMED)
-                min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(match_result)
+        best_match_value = -1
+        match_location = None
 
-                if max_val > best_match_value:
-                    best_match_value = max_val
-                    match_location = (x, y)
-                    best_region_index = i
+        for i, (x, y, width, height) in enumerate(coordinates[1:], 1):
+            cut_region = captcha_region[y:y + height, x:x + width]
+            match_result = cv2.matchTemplate(cut_region, resized_first_region, cv2.TM_CCOEFF_NORMED)
+            min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(match_result)
 
-            click_x = pt[0] + match_location[0] + coordinates[1][2] // 2
-            click_y = pt[1] + match_location[1] + coordinates[1][3] // 2
-            console_print(f"Found Captcha2 and click on Symbol: {best_region_index}")
-            update_stats("Captcha2")
-            pyautogui.click(click_x, click_y)
+            if max_val > best_match_value:
+                best_match_value = max_val
+                match_location = (x, y)
+                best_region_index = i
+
+        click_x = pt[0] + match_location[0] + coordinates[1][2] // 2
+        click_y = pt[1] + match_location[1] + coordinates[1][3] // 2
+        console_print(f"Found Captcha2 and click on Symbol: {best_region_index}")
+        update_stats("Captcha2")
+        pyautogui.click(click_x, click_y)
+
+
 
 
 def console_print(message):
