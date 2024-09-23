@@ -24,6 +24,7 @@ stats_file_path = os.path.join(stats_dir, 'stats.txt')
 # Ensure the 'data' directory exists
 os.makedirs(stats_dir, exist_ok=True)
 
+
 def solve_turnstile(screenshot):
     # Screenshot ist bereits ein NumPy-Array
     screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
@@ -87,8 +88,6 @@ def solve_captcha2(screenshot):
         pyautogui.click(click_x, click_y)
 
 
-
-
 def console_print(message):
     console.insert(tk.END, message + "\n")
     console.see(tk.END)
@@ -121,7 +120,7 @@ def search_captcha():
         if captcha2_var.get():
             solve_captcha2(screenshot)
 
-        time.sleep(5)
+        time.sleep(1)
 
 
 def load_total_stats():
