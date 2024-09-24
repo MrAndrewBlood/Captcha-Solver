@@ -1,6 +1,11 @@
 ## Usage
 
++ Download and execute the compiled exe from the release
+
+or
+
 + Install the Requirements
+
 + Download or clone the repository
 ```
 git clone https://github.com/MrAndrewBlood/Captcha-Solver.git
@@ -16,12 +21,12 @@ python main.py
 + Python with pip
 
 ```
-pip install numpy opencv-python Pillow pyautogui
+pip install numpy opencv-python Pillow pyautogui requests
 ```
 
 ## How it works
 
-After starting, it takes every second a screenshot and search with opencv template matching for the activated captchas if it finds one, it clicks on that. 
+After starting, it takes every 3 second a screenshot and search with opencv template matching for the activated captchas if it finds one, it clicks on that. 
 
 **IMPORTANT**
 
@@ -38,3 +43,5 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 ## Planned
 
 + Release for Linux/Mac
++ Add a menu bar
++ Delete statistic bug
