@@ -37,4 +37,4 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 
 ## Planned
 
-+ Release for Win/Linux/Mac with Version control on startup
++ Release for Linux/Mac
