@@ -29,6 +29,9 @@ os.makedirs(stats_dir, exist_ok=True)
 
 
 def check_for_updates(current_version):
+    console_print(f"Your current version is: {current_version}")
+    console_print(f"Check if a new version is available...")
+
     # URL der GitHub-API für die Releases des Repositories
     url = "https://api.github.com/repos/MrAndrewBlood/Captcha-Solver/releases/latest"
 
@@ -40,13 +43,13 @@ def check_for_updates(current_version):
 
         # Vergleich der Versionen
         if latest_version > current_version:
-            console_print(f"Eine neue Version ({latest_version}) ist verfügbar!")
-            console_print("Bitte aktualisiere das Programm.")
+            console_print(f"Found a new version {latest_version}")
+            console_print("Please install it from https://github.com/MrAndrewBlood/Captcha-Solver")
         else:
-            console_print("Du hast die neueste Version.")
+            console_print("You have the newest version installed!")
 
     except requests.exceptions.RequestException as e:
-        console_print(f"Fehler bei der Verbindung zur GitHub-API: {e}")
+        console_print(f"Error when connecting to the GitHub-API: {e}")
 
 
 def solve_turnstile(turnstile_locations):
@@ -205,17 +208,23 @@ def load_total_stats():
             total_captcha2_count = int(data[1].strip()) if len(data) > 1 else 0
             total_icon_captcha_count = int(data[2].strip()) if len(data) > 2 else 0
     except FileNotFoundError:
+        console_print("stats.txt nicht gefunden. Erstelle eine neue Datei.")
         total_turnstile_count = 0
         total_captcha2_count = 0
         total_icon_captcha_count = 0
-
+    except Exception as e:
+        console_print(f"Fehler beim Laden der Statistik: {e}")
 
 def save_total_stats():
     global total_turnstile_count, total_captcha2_count, total_icon_captcha_count
-    with open(stats_file_path, "w") as f:
-        f.write(f"{total_turnstile_count}\n")
-        f.write(f"{total_captcha2_count}\n")
-        f.write(f"{total_icon_captcha_count}\n")
+    try:
+        with open(stats_file_path, "w") as f:
+            f.write(f"{total_turnstile_count}\n")
+            f.write(f"{total_captcha2_count}\n")
+            f.write(f"{total_icon_captcha_count}\n")
+    except Exception as e:
+        console_print(f"Fehler beim Speichern der Statistik: {e}")
+
 
 
 def update_stats(captcha_type):
@@ -297,7 +306,7 @@ total_stats_label = tk.Label(window,
                              text=f"Captchas solved in total:                 Turnstile: {total_turnstile_count}     Captcha2: {total_captcha2_count}     IconCaptcha: {total_icon_captcha_count}")
 total_stats_label.grid(row=5, column=0, sticky='w', padx=25)
 
-current_version = "v1.6.0"
+current_version = "v1.6.1"
 check_for_updates(current_version)
 
 window.mainloop()
