@@ -24,13 +24,13 @@ solve various types of captchas, making browsing easier for users.
 2. Clone the repository:
 
 ```
-git clone https://github.com/yourusername/captcha-solver.git
+git clone https://github.com/MrAndrewBlood/Captcha-Solver.git
 ```
 
 3. Navigate to the project directory:
 
 ```
-cd captcha-solver
+cd Captcha-Solver
 ```
 
 4. Ensure that the captcha templates are present in the `assets` directory. The templates should include the following
@@ -79,7 +79,6 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 
 + Release for Linux/Mac
 + Add a menu bar
-+ 
 
 ## License
 
