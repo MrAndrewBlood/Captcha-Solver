@@ -9,28 +9,21 @@ import pyautogui
 import threading
 import requests
 
-# Stats global laden
+
+# Variablen für die Statistiken
+total_turnstile_count = 0
+total_captcha2_count = 0
+total_icon_captcha_count = 0
 session_turnstile_count = 0
 session_captcha2_count = 0
 session_icon_captcha_count = 0
 
-# Gesamtanzahl initialisieren
-total_turnstile_count = 0
-total_captcha2_count = 0
-total_icon_captcha_count = 0
+# Pfad zur stats.txt-Datei
+stats_file_path = r'C:\Captcha Solver\data\stats.txt'
 
 running = False  # Variable, um die Ausführung zu steuern
 
-stats_dir = os.path.join(os.path.dirname(__file__), 'data')
-stats_file_path = os.path.join(stats_dir, 'stats.txt')
-
-# Ensure the 'data' directory exists
-os.makedirs(stats_dir, exist_ok=True)
-
-
 def check_for_updates(current_version):
-    console_print(f"Your current version is: {current_version}")
-    console_print(f"Check if a new version is available...")
 
     # URL der GitHub-API für die Releases des Repositories
     url = "https://api.github.com/repos/MrAndrewBlood/Captcha-Solver/releases/latest"
@@ -43,10 +36,10 @@ def check_for_updates(current_version):
 
         # Vergleich der Versionen
         if latest_version > current_version:
-            console_print(f"Found a new version {latest_version}")
-            console_print("Please install it from https://github.com/MrAndrewBlood/Captcha-Solver")
+            console_print(f"Found a new version {latest_version}!")
+            console_print("Please install it from: https://github.com/MrAndrewBlood/Captcha-Solver")
         else:
-            console_print("You have the newest version installed!")
+            console_print(f"You have the newest version {current_version} installed!")
 
     except requests.exceptions.RequestException as e:
         console_print(f"Error when connecting to the GitHub-API: {e}")
@@ -208,23 +201,17 @@ def load_total_stats():
             total_captcha2_count = int(data[1].strip()) if len(data) > 1 else 0
             total_icon_captcha_count = int(data[2].strip()) if len(data) > 2 else 0
     except FileNotFoundError:
-        console_print("stats.txt nicht gefunden. Erstelle eine neue Datei.")
         total_turnstile_count = 0
         total_captcha2_count = 0
         total_icon_captcha_count = 0
-    except Exception as e:
-        console_print(f"Fehler beim Laden der Statistik: {e}")
+
 
 def save_total_stats():
     global total_turnstile_count, total_captcha2_count, total_icon_captcha_count
-    try:
-        with open(stats_file_path, "w") as f:
-            f.write(f"{total_turnstile_count}\n")
-            f.write(f"{total_captcha2_count}\n")
-            f.write(f"{total_icon_captcha_count}\n")
-    except Exception as e:
-        console_print(f"Fehler beim Speichern der Statistik: {e}")
-
+    with open(stats_file_path, "w") as f:
+        f.write(f"{total_turnstile_count}\n")
+        f.write(f"{total_captcha2_count}\n")
+        f.write(f"{total_icon_captcha_count}\n")
 
 
 def update_stats(captcha_type):
@@ -249,6 +236,27 @@ def update_stats(captcha_type):
     save_total_stats()
 
 
+def create_folder_structure():
+    base_folder = r'C:\Captcha Solver'
+    data_folder = os.path.join(base_folder, 'data')
+    stats_file = os.path.join(data_folder, 'stats.txt')
+
+    if os.path.exists(base_folder) and os.path.exists(data_folder) and os.path.exists(stats_file):
+        return
+    else:
+        folders = [
+            base_folder,
+            data_folder,
+        ]
+
+        for folder in folders:
+            os.makedirs(folder, exist_ok=True)
+
+        if not os.path.exists(stats_file):
+            with open(stats_file, 'w') as f:
+                f.write('0\n0\n0')
+
+
 turnstile_template_path = os.path.join(os.path.dirname(__file__), 'assets/Turnstile.jpg')
 turnstile_template = cv2.imread(turnstile_template_path, cv2.IMREAD_GRAYSCALE)
 
@@ -258,6 +266,7 @@ captcha2_template = cv2.imread(captcha2_template_path, cv2.IMREAD_GRAYSCALE)
 iconCaptcha_template_path = os.path.join(os.path.dirname(__file__), 'assets/IconCaptcha1.jpg')
 iconCaptcha_template = cv2.imread(iconCaptcha_template_path, cv2.IMREAD_GRAYSCALE)
 
+create_folder_structure()
 load_total_stats()
 
 window = tk.Tk()
@@ -306,7 +315,7 @@ total_stats_label = tk.Label(window,
                              text=f"Captchas solved in total:                 Turnstile: {total_turnstile_count}     Captcha2: {total_captcha2_count}     IconCaptcha: {total_icon_captcha_count}")
 total_stats_label.grid(row=5, column=0, sticky='w', padx=25)
 
-current_version = "v1.6.1"
+current_version = "v1.6.2"
 check_for_updates(current_version)
 
 window.mainloop()
