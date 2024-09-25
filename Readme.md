@@ -28,7 +28,7 @@ It cannot work headless, you must see the captcha everytime in the screen that i
 
 ## Installation
 
-+ Download and execute the compiled exe or
+Download and start the compiled .exe or
 
 1. Install the Requirements
 
