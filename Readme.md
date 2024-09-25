@@ -1,13 +1,13 @@
 # Captcha Solver
 
-A Python-based automated captcha solver developed using OpenCV and PyAutoGUI. This tool can recognize and automatically
-solve various types of captchas, making browsing easier for users.
+A Python-based automated Captcha Solver developed using OpenCV and PyAutoGUI. This tool can recognize and automatically
+solve various types of Captchas.
 
 ## Features
 
-- Real-time statistics on solved captchas for the current session and overall
-- User-friendly GUI for selecting captchas and controlling the solving process
-- Supports multiple captcha types:
+- Real-time statistics on solved Captchas for the current Session and Overall
+- User-friendly GUI for selecting Captchas and controlling the solving process
+- Supports this Captcha types:
 
 | Captcha                            | Success Rate |
 |------------------------------------|:------------:|
@@ -15,13 +15,24 @@ solve various types of captchas, making browsing easier for users.
 | Captcha2 (EarnNow and other sites) |     90%      |
 | IconCaptcha                        |     20%      |
 
+## Usage
+
+1. Select the captchas you want to solve automatically.
+2. Click "Start" to begin the solving process.
+3. Click "Stop" to end the solving process.
+4. Check the statistics in the GUI to see how many captchas have been solved.
+
+**IMPORTANT**
+
+It cannot work headless, you must see the captcha everytime in the screen that it works.
+
 ## Installation
 
 + Download and execute the compiled exe or
 
 1. Install the Requirements
 
-2. Clone the repository:
+2. Download or Clone the repository:
 
 ```
 git clone https://github.com/MrAndrewBlood/Captcha-Solver.git
@@ -48,7 +59,7 @@ python main.py
 
 ## Requirements
 
-- Git for cloning
+- "Git" for cloning
 - Python 3.x
 - Required packages:
     - OpenCV (opencv-python)
@@ -64,21 +75,10 @@ You can install the required packages using pip:
 pip install numpy opencv-python Pillow pyautogui requests
 ```
 
-## Usage
-
-1. Select the captchas you want to solve automatically.
-2. Click "Start" to begin the solving process.
-3. Click "Stop" to end the solving process.
-4. Check the statistics in the GUI to see how many captchas have been solved.
-
-**IMPORTANT**
-
-It cannot work headless, you must see the captcha everytime in the screen that it works.
-
 ## Planned
 
-+ Release for Linux/Mac
 + Add a menu bar
++ Release for Linux/Mac
 
 ## License
 
