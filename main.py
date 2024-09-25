@@ -9,8 +9,9 @@ import pyautogui
 import threading
 import requests
 
+current_version = "v1.6.3"
 
-# Variablen für die Statistiken
+running = False
 total_turnstile_count = 0
 total_captcha2_count = 0
 total_icon_captcha_count = 0
@@ -18,31 +19,16 @@ session_turnstile_count = 0
 session_captcha2_count = 0
 session_icon_captcha_count = 0
 
-# Pfad zur stats.txt-Datei
 stats_file_path = r'C:\Captcha Solver\data\stats.txt'
 
-running = False  # Variable, um die Ausführung zu steuern
+turnstile_template_path = os.path.join(os.path.dirname(__file__), 'assets/Turnstile.jpg')
+turnstile_template = cv2.imread(turnstile_template_path, cv2.IMREAD_GRAYSCALE)
 
-def check_for_updates(current_version):
+captcha2_template_path = os.path.join(os.path.dirname(__file__), 'assets/Captcha2.jpg')
+captcha2_template = cv2.imread(captcha2_template_path, cv2.IMREAD_GRAYSCALE)
 
-    # URL der GitHub-API für die Releases des Repositories
-    url = "https://api.github.com/repos/MrAndrewBlood/Captcha-Solver/releases/latest"
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Überprüfen, ob der Request erfolgreich war
-        latest_release = response.json()
-        latest_version = latest_release["tag_name"]  # Die neueste Version aus dem Release
-
-        # Vergleich der Versionen
-        if latest_version > current_version:
-            console_print(f"Found a new version {latest_version}!")
-            console_print("Please install it from: https://github.com/MrAndrewBlood/Captcha-Solver")
-        else:
-            console_print(f"You have the newest version {current_version} installed!")
-
-    except requests.exceptions.RequestException as e:
-        console_print(f"Error when connecting to the GitHub-API: {e}")
+iconCaptcha_template_path = os.path.join(os.path.dirname(__file__), 'assets/IconCaptcha1.jpg')
+iconCaptcha_template = cv2.imread(iconCaptcha_template_path, cv2.IMREAD_GRAYSCALE)
 
 
 def solve_turnstile(turnstile_locations):
@@ -143,29 +129,6 @@ def solve_captcha2(screenshot, captcha2_locations):
     pyautogui.click(click_x, click_y)
 
 
-def console_print(message):
-    console.insert(tk.END, message + "\n")
-    console.see(tk.END)
-
-
-def toggle_button():
-    global running
-    if start_button['text'] == 'Start':
-        # Überprüfen, ob mindestens ein Captcha ausgewählt ist
-        if not turnstile_var.get() and not captcha2_var.get() and not icon_captcha_var.get():
-            console_print("No Captcha selected. Please select a solver.")
-            return
-
-        start_button['text'] = 'Stop'
-        running = True
-        console_print("Captcha Solver started.")
-        threading.Thread(target=search_captcha).start()  # Starte den Thread für die Schleife
-    else:
-        start_button['text'] = 'Start'
-        console_print("Captcha Solver stopped.")
-        running = False  # Stoppe die Schleife
-
-
 def search_captcha():
     while running:
         screenshot = np.array(ImageGrab.grab())
@@ -190,6 +153,28 @@ def search_captcha():
             solve_icon_captcha(screenshot, iconCaptcha_locations)
 
         time.sleep(3)
+
+
+def console_print(message):
+    console.insert(tk.END, message + "\n")
+    console.see(tk.END)
+
+
+def toggle_button():
+    global running
+    if start_button['text'] == 'Start':
+        if not turnstile_var.get() and not captcha2_var.get() and not icon_captcha_var.get():
+            console_print("No Captcha selected. Please select a solver.")
+            return
+
+        start_button['text'] = 'Stop'
+        running = True
+        console_print("Captcha Solver started.")
+        threading.Thread(target=search_captcha).start()
+    else:
+        start_button['text'] = 'Start'
+        console_print("Captcha Solver stopped.")
+        running = False
 
 
 def load_total_stats():
@@ -257,14 +242,26 @@ def create_folder_structure():
                 f.write('0\n0\n0')
 
 
-turnstile_template_path = os.path.join(os.path.dirname(__file__), 'assets/Turnstile.jpg')
-turnstile_template = cv2.imread(turnstile_template_path, cv2.IMREAD_GRAYSCALE)
+def check_for_updates(current_version):
+    # URL der GitHub-API für die Releases des Repositories
+    url = "https://api.github.com/repos/MrAndrewBlood/Captcha-Solver/releases/latest"
 
-captcha2_template_path = os.path.join(os.path.dirname(__file__), 'assets/Captcha2.jpg')
-captcha2_template = cv2.imread(captcha2_template_path, cv2.IMREAD_GRAYSCALE)
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Überprüfen, ob der Request erfolgreich war
+        latest_release = response.json()
+        latest_version = latest_release["tag_name"]  # Die neueste Version aus dem Release
 
-iconCaptcha_template_path = os.path.join(os.path.dirname(__file__), 'assets/IconCaptcha1.jpg')
-iconCaptcha_template = cv2.imread(iconCaptcha_template_path, cv2.IMREAD_GRAYSCALE)
+        # Vergleich der Versionen
+        if latest_version > current_version:
+            console_print(f"Found a new version {latest_version}!")
+            console_print("Please install it from: https://github.com/MrAndrewBlood/Captcha-Solver")
+        else:
+            console_print(f"You have the newest version {current_version} installed!")
+
+    except requests.exceptions.RequestException as e:
+        console_print(f"Error when connecting to the GitHub-API: {e}")
+
 
 create_folder_structure()
 load_total_stats()
@@ -315,7 +312,6 @@ total_stats_label = tk.Label(window,
                              text=f"Captchas solved in total:                 Turnstile: {total_turnstile_count}     Captcha2: {total_captcha2_count}     IconCaptcha: {total_icon_captcha_count}")
 total_stats_label.grid(row=5, column=0, sticky='w', padx=25)
 
-current_version = "v1.6.2"
 check_for_updates(current_version)
 
 window.mainloop()
