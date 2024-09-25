@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import Text
+from tkinter import messagebox
 import os
 import cv2
 import time
@@ -9,7 +10,7 @@ import pyautogui
 import threading
 import requests
 
-current_version = "v1.6.3"
+current_version = "v1.7.0"
 
 running = False
 total_turnstile_count = 0
@@ -263,6 +264,18 @@ def check_for_updates(current_version):
         console_print(f"Error when connecting to the GitHub-API: {e}")
 
 
+def show_about(current_version):
+    # Hier kannst du alle wichtigen Informationen zum Programm anzeigen
+    about_text = (
+        "Program name: Captcha Solver\n"
+        f"Version: {current_version}\n\n"
+        "Description: A Python-based automated Captcha Solver developed using OpenCV and PyAutoGUI.\n This tool can recognize and automatically solve various types of Captchas.\n\n"
+        "GitHub: https://github.com/MrAndrewBlood/Captcha-Solver\n\n"
+        "Developer: Andrewblood"
+    )
+    messagebox.showinfo("Über dieses Programm", about_text)
+
+
 create_folder_structure()
 load_total_stats()
 
@@ -273,13 +286,20 @@ ico_path = os.path.join(os.path.dirname(__file__), "assets/Captcha_Solver_Logo.i
 window.iconbitmap(ico_path)
 
 width = 870
-height = 420
+height = 440
 screen_width = window.winfo_screenwidth()
 screen_height = window.winfo_screenheight()
 x = (screen_width // 2) - (width // 2)
 y = (screen_height // 2) - (height // 2)
 
 window.geometry(f"{width}x{height}+{x}+{y}")
+
+menubar = tk.Menu(window)
+start_menu = tk.Menu(menubar, tearoff=0)
+start_menu.add_command(label="Check for updates", command=lambda: check_for_updates(current_version))
+start_menu.add_command(label="About", command=lambda: show_about(current_version))
+menubar.add_cascade(label="Start", menu=start_menu)
+window.config(menu=menubar)
 
 label = tk.Label(window, text="Please select the captchas you want to automatically solve, then click Start.")
 label.grid(row=0, column=0, pady=10, padx=10)
