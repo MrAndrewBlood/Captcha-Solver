@@ -5,8 +5,8 @@ solve various types of Captchas.
 
 ## Features
 
-- Compiled .exe where you don't must install the Requirements
-- Version control on startup
+- Compiled .exe available, so no need to install dependencies
+- Version check on startup
 - Real-time statistics on solved Captchas for the current Session and Overall
 - User-friendly GUI for selecting Captchas and controlling the solving process
 - Supports this Captcha types:
@@ -59,9 +59,16 @@ cd Captcha-Solver
 python main.py
 ```
 
+or compile your own .exe
+
+```
+pip install pyinstaller
+build_pyinstaller.bat
+```
+
 ## Requirements
 
-- "Git" for cloning
+- "Git" for cloning the repository
 - Python 3.x
 - Required packages:
     - OpenCV (opencv-python)
