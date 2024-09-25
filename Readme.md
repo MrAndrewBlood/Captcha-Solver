@@ -5,6 +5,7 @@ solve various types of Captchas.
 
 ## Features
 
+- Compiled .exe where you don't must install the Requirements
 - Real-time statistics on solved Captchas for the current Session and Overall
 - User-friendly GUI for selecting Captchas and controlling the solving process
 - Supports this Captcha types:
