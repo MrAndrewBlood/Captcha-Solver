@@ -1,1 +1,1 @@
-pyinstaller --onefile --icon=assets/Captcha_Solver_Logo.ico --name="Captcha Solver" --windowed --add-data "assets;assets" main.py
+pyinstaller --onefile --icon=assets/captcha_solver_logo.ico --name="Captcha Solver" --windowed --add-data "assets;assets" main.py

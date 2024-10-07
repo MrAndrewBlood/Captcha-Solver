@@ -10,7 +10,7 @@ import pyautogui
 import threading
 import requests
 
-current_version = "v1.7.0"
+current_version = "v1.7.1"
 
 running = False
 total_turnstile_count = 0
@@ -22,14 +22,17 @@ session_icon_captcha_count = 0
 
 stats_file_path = r'C:\Captcha Solver\data\stats.txt'
 
-turnstile_template_path = os.path.join(os.path.dirname(__file__), 'assets/Turnstile.jpg')
+turnstile_template_path = os.path.join(os.path.dirname(__file__), "assets/turnstile_001.jpg")
 turnstile_template = cv2.imread(turnstile_template_path, cv2.IMREAD_GRAYSCALE)
 
-captcha2_template_path = os.path.join(os.path.dirname(__file__), 'assets/Captcha2.jpg')
+captcha2_template_path = os.path.join(os.path.dirname(__file__), "assets/captcha2_001.jpg")
 captcha2_template = cv2.imread(captcha2_template_path, cv2.IMREAD_GRAYSCALE)
 
-iconCaptcha_template_path = os.path.join(os.path.dirname(__file__), 'assets/IconCaptcha1.jpg')
+iconCaptcha_template_path = os.path.join(os.path.dirname(__file__), "assets/icon_captcha_001.jpg")
 iconCaptcha_template = cv2.imread(iconCaptcha_template_path, cv2.IMREAD_GRAYSCALE)
+
+iconCaptchaSolved_template_path = os.path.join(os.path.dirname(__file__), "assets/icon_captcha_solved.jpg")
+iconCaptchaSolved_template = cv2.imread(iconCaptchaSolved_template_path, cv2.IMREAD_GRAYSCALE)
 
 
 def solve_turnstile(turnstile_locations):
@@ -43,9 +46,9 @@ def solve_turnstile(turnstile_locations):
     pyautogui.click(click_x, click_y)
 
 
-def solve_icon_captcha(screenshot, iconCaptcha_locations):
+def solve_icon_captcha(screenshot, icon_captcha_locations):
     # Nur die erste Übereinstimmung verwenden
-    pt = (iconCaptcha_locations[1][0], iconCaptcha_locations[0][0])
+    pt = (icon_captcha_locations[1][0], icon_captcha_locations[0][0])
     h, w = iconCaptcha_template.shape
     captcha_region = screenshot[pt[1]:pt[1] + h, pt[0]:pt[0] + w]
 
@@ -112,6 +115,7 @@ def solve_captcha2(screenshot, captcha2_locations):
 
     best_match_value = -1
     match_location = None
+    best_region_index = None
 
     for i, (x, y, width, height) in enumerate(coordinates[1:], 1):
         cut_region = captcha_region[y:y + height, x:x + width]
@@ -134,24 +138,26 @@ def search_captcha():
     while running:
         screenshot = np.array(ImageGrab.grab())
 
-        # Screenshot ist bereits ein NumPy-Array
         screenshot_gray = cv2.cvtColor(screenshot, cv2.COLOR_BGR2GRAY)
 
         captcha2_result = cv2.matchTemplate(screenshot_gray, captcha2_template, cv2.TM_CCOEFF_NORMED)
-        captcha2_locations = np.where(captcha2_result >= 0.7)  # Schwellenwert für das Haupt-Captcha
+        captcha2_locations = np.where(captcha2_result >= 0.6)  # Schwellenwert für das Haupt-Captcha
 
         iconCaptcha_result = cv2.matchTemplate(screenshot_gray, iconCaptcha_template, cv2.TM_CCOEFF_NORMED)
-        iconCaptcha_locations = np.where(iconCaptcha_result >= 0.6)
+        icon_captcha_locations = np.where(iconCaptcha_result >= 0.5)
 
         turnstile_result = cv2.matchTemplate(screenshot_gray, turnstile_template, cv2.TM_CCOEFF_NORMED)
         turnstile_locations = np.where(turnstile_result >= 0.7)
+
+        iconCaptchaSolved_result = cv2.matchTemplate(screenshot_gray, iconCaptchaSolved_template, cv2.TM_CCOEFF_NORMED)
+        icon_captcha_solved_locations = np.where(iconCaptchaSolved_result >= 0.9)
 
         if turnstile_var.get() and turnstile_locations[0].size > 0:
             solve_turnstile(turnstile_locations)
         if captcha2_var.get() and captcha2_locations[0].size > 0:
             solve_captcha2(screenshot, captcha2_locations)
-        if icon_captcha_var.get() and iconCaptcha_locations[0].size > 0:
-            solve_icon_captcha(screenshot, iconCaptcha_locations)
+        if icon_captcha_var.get() and icon_captcha_locations[0].size > 0 and not icon_captcha_solved_locations[0].size > 0:
+            solve_icon_captcha(screenshot, icon_captcha_locations)
 
         time.sleep(3)
 
@@ -197,7 +203,7 @@ def save_total_stats():
     with open(stats_file_path, "w") as f:
         f.write(f"{total_turnstile_count}\n")
         f.write(f"{total_captcha2_count}\n")
-        f.write(f"{total_icon_captcha_count}\n")
+        f.write(f"{total_icon_captcha_count}")
 
 
 def update_stats(captcha_type):
@@ -243,7 +249,7 @@ def create_folder_structure():
                 f.write('0\n0\n0')
 
 
-def check_for_updates(current_version):
+def check_for_updates(installed_version):
     # URL der GitHub-API für die Releases des Repositories
     url = "https://api.github.com/repos/MrAndrewBlood/Captcha-Solver/releases/latest"
 
@@ -254,21 +260,21 @@ def check_for_updates(current_version):
         latest_version = latest_release["tag_name"]  # Die neueste Version aus dem Release
 
         # Vergleich der Versionen
-        if latest_version > current_version:
+        if latest_version > installed_version:
             console_print(f"Found a new version {latest_version}!")
             console_print("Please install it from: https://github.com/MrAndrewBlood/Captcha-Solver")
         else:
-            console_print(f"You have the newest version {current_version} installed!")
+            console_print(f"You have the newest version {installed_version} installed!")
 
     except requests.exceptions.RequestException as e:
         console_print(f"Error when connecting to the GitHub-API: {e}")
 
 
-def show_about(current_version):
+def show_about(version):
     # Hier kannst du alle wichtigen Informationen zum Programm anzeigen
     about_text = (
         "Program name: Captcha Solver\n"
-        f"Version: {current_version}\n\n"
+        f"Version: {version}\n\n"
         "Description: A Python-based automated Captcha Solver developed using OpenCV and PyAutoGUI.\n This tool can recognize and automatically solve various types of Captchas.\n\n"
         "GitHub: https://github.com/MrAndrewBlood/Captcha-Solver\n\n"
         "Developer: Andrewblood"
@@ -282,7 +288,7 @@ load_total_stats()
 window = tk.Tk()
 window.title("Captcha Solver")
 
-ico_path = os.path.join(os.path.dirname(__file__), "assets/Captcha_Solver_Logo.ico")
+ico_path = os.path.join(os.path.dirname(__file__), "assets/captcha_solver_logo.ico")
 window.iconbitmap(ico_path)
 
 width = 870
